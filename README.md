@@ -15,16 +15,5 @@ Foreach ($User in $Users)
 			#Заведение нового пользователя в AD
             New-ADUser -Name $DisplayName -SamAccountName $User.Login -UserPrincipalName $SAM -DisplayName $DisplayName -GivenName $UserFirstName -Surname  $UserLastName -Company $Company -Department $Department -Title $Title  -AccountPassword  (ConvertTo-SecureString -AsPlainText $Password -Force) -PasswordNeverExpires $true -Enabled $true -Path $CN -Verbose
         }
-    Catch {
-			#Если пользователь уже существует, то исправление его данных
-            Set-ADUser -Identity "CN=$DisplayName,OU=Users,OU=Departament,DC=Organization,DC=local" -Company $Company -Department $Department -Title $Title -Verbose
-          }
-    Finally {
-		#Добавление пользователя к Группе пользователей на основе Отдела
-        if ($Department -eq 'Departament1') {Add-ADGroupMember -Identity "Departament1" -Members $User.Login -Verbose}
-        elseif ($Department -eq 'Departament2') {Add-ADGroupMember -Identity "Departament2" -Members $User.Login -Verbose}
-        elseif ($Department -eq 'Departament3') {Add-ADGroupMember -Identity "Departament3" -Members $User.Login -Verbose}
-		#Добавление данных и фотографии юзера в дополнительные поля
-		Set-ADUser -Identity "CN=$DisplayName,OU=Users,OU=Departament,DC=Organization,DC=local" -Replace @{$ADSI=$ADSIData;$ADSI2=$ADSIData2;thumbnailPhoto=$photo;jpegPhoto=$photo} -Verbose
     }
 }
