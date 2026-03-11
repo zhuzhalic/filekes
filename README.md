@@ -1,6 +1,6 @@
 $Path = "C:\users.csv"                                                                  #Путь к файлу user.csv
 $Users = Import-Csv -Delimiter ";" -Path $Path                                          #Импорт csv-файла
-$CN = "OU=watom,OU=hq,DC=Users"                                                         #Путь в AD
+$CN = "DC=watom26,DC=local,OU=watom,OU=hq,OU=Users"                                     #Путь в AD
 Foreach ($User in $Users)
 {	
     $Password = "P@ssw0rd_2026!"                                                         #Пароль пользователя
