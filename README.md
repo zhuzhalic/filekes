@@ -1,6 +1,6 @@
 $Path = "C:\users.csv"                                                                  #Путь к файлу user.csv
 $Users = Import-Csv -Delimiter ";" -Path $Path                                          #Импорт csv-файла
-$CN = "DC=watom26,DC=local,OU=watom,OU=hq,OU=Users"                                     #Путь в AD
+$CN = "OU=Users,OU=watom,OU=hq,OU=Users,DC=watom26,DC=local"                                     #Путь в AD
 Foreach ($User in $Users)
 {	
     $Password = "P@ssw0rd_2026!"                                                         #Пароль пользователя
@@ -8,11 +8,13 @@ Foreach ($User in $Users)
     $UserFirstName = $User.FirstName                                                    #Имя
     $UserLastName = $User.LastName                                                      #Фамилия
     $Department = $User.Department                                                      #Отдел
-    $Company = "Company"                                                                #Компания (Организация)
+    $Company =  $User.Company                                                               #Компания (Организация)
     $Title = $User.Title                                                                #Должность
     $SAM= $User.Login + "@watom26.local"                                                #
-    Try {
-			#Заведение нового пользователя в AD
-            New-ADUser -Name $DisplayName -SamAccountName $User.Login -UserPrincipalName $SAM -DisplayName $DisplayName -GivenName $UserFirstName -Surname  $UserLastName -Company $Company -Department $Department -Title $Title  -AccountPassword  (ConvertTo-SecureString -AsPlainText $Password -Force) -PasswordNeverExpires $true -Enabled $true -Path $CN -Verbose
-        }
 }
+ $TargetOU = $BaseOU                     # по умолчанию
+    if ($User.net_admin -eq 'True') {
+        $TargetOU = "OU=NetAdmins,$BaseOU"  # для сетевых администраторов
+    } elseif ($User.net_1line -eq 'True') {
+        $TargetOU = "OU=Net1Line,$BaseOU"   # для первой линии поддержки
+    }
