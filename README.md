@@ -10,11 +10,10 @@ Foreach ($User in $Users)
     $Department = $User.Department                                                      #Отдел
     $Company =  $User.Company                                                               #Компания (Организация)
     $Title = $User.Title                                                                #Должность
-    $SAM= $User.Login + "@watom26.local"                                                #
-}
- $TargetOU = $BaseOU                     # по умолчанию
+    $SAM= $User.Login 
+ $TargetOU = $BaseOU                     
     if ($User.net_admin -eq 'True') {
-        $TargetOU = "OU=NetAdmins,$BaseOU"  # для сетевых администраторов
+        $TargetOU = "OU=NetAdmins,$BaseOU"  
     } elseif ($User.net_1line -eq 'True') {
-        $TargetOU = "OU=Net1Line,$BaseOU"   # для первой линии поддержки
+        $TargetOU = "OU=Net1Line,$BaseOU"  
     }
