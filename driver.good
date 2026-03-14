@@ -12,5 +12,5 @@ foreach ($user in $users) {
         Set-Acl $userFolder $acl
     }
     # Установка домашней папки в AD
-    Set-ADUser $user.SamAccountName -HomeDrive "H:" -HomeDirectory "\\FS01\Home Folders\$($user.SamAccountName)"
+    Set-ADUser $user.SamAccountName -HomeDrive "H:" -HomeDirectory "\\hq-wdc.watom26.local\Home Folders\$($user.SamAccountName)"
 }
