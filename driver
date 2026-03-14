@@ -1,0 +1,45 @@
+$user = $env:USERNAME
+$path = "S:\Home Folders\$user"
+$templatePath = "S:\Home Folders\Template"
+
+# Проверяем, существует ли целевая папка
+if (-not (Test-Path $path)) {
+    # Проверяем существование шаблона
+    if (-not (Test-Path $templatePath)) {
+        Write-Error "Шаблонная папка '$templatePath' не найдена. Создание папки прервано."
+        exit 1
+    }
+
+    try {
+        # Создаём папку
+        $null = New-Item -ItemType Directory -Path $path -ErrorAction Stop
+
+        # Копируем ACL с шаблона
+        $acl = Get-Acl -Path $templatePath -ErrorAction Stop
+        Set-Acl -Path $path -AclObject $acl -ErrorAction Stop
+
+        # Дополнительно: добавляем явное разрешение для текущего пользователя (полный доступ)
+        # Это гарантирует, что пользователь сможет работать с папкой, даже если шаблон не содержит нужных прав.
+        $acl = Get-Acl -Path $path
+        $rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+            "$env:USERDOMAIN\$user",   # или просто $user, если используется локальный пользователь
+            "FullControl",
+            "ContainerInherit, ObjectInherit",
+            "None",
+            "Allow"
+        )
+        $acl.AddAccessRule($rule)
+        Set-Acl -Path $path -AclObject $acl
+
+        Write-Host "Папка '$path' успешно создана и настроена."
+    }
+    catch {
+        Write-Error "Не удалось создать или настроить папку '$path': $_"
+        # При необходимости можно удалить частично созданную папку
+        # if (Test-Path $path) { Remove-Item -Path $path -Force -Recurse }
+        exit 1
+    }
+}
+else {
+    Write-Host "Папка '$path' уже существует."
+}
