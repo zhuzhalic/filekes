@@ -1,0 +1,16 @@
+$users = Get-ADUser -Filter * -SearchBase "OU=watom,DC=watom26,DC=local"
+$homeRoot = "S:\Home Folders"
+foreach ($user in $users) {
+    $userFolder = Join-Path $homeRoot $user.SamAccountName
+    if (!(Test-Path $userFolder)) {
+        New-Item -ItemType Directory -Path $userFolder
+        $acl = Get-Acl $userFolder
+        $acl.SetAccessRuleProtection($true, $false) # отключить наследование
+        $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($user.SamAccountName, "FullControl", "ContainerInherit,ObjectInherit", "None", "Allow")))
+        $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("Administrators", "FullControl", "ContainerInherit,ObjectInherit", "None", "Allow")))
+        $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("SYSTEM", "FullControl", "ContainerInherit,ObjectInherit", "None", "Allow")))
+        Set-Acl $userFolder $acl
+    }
+    # Установка домашней папки в AD
+    Set-ADUser $user.SamAccountName -HomeDrive "H:" -HomeDirectory "\\FS01\Home Folders\$($user.SamAccountName)"
+}
